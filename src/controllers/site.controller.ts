@@ -3,9 +3,17 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 import { asyncHandler } from "../utils/asyncHandler";
 import { IPagination } from "../types/common.type";
 import { db } from "../config/dbConnect";
-import { admin, admin_site_trans, department, employee, site, site_trans } from "../db/schema";
+import {
+  admin,
+  admin_site_trans,
+  department,
+  employee,
+  site,
+  site_trans,
+} from "../db/schema";
 import { desc, eq } from "drizzle-orm";
 import { ISiteCreate } from "../types/site.type";
+import { fromEnum, toEnum } from "../utils/commonFunction";
 
 export const getSiteDetails = asyncHandler(
   async (
@@ -30,9 +38,8 @@ export const getSiteDetails = asyncHandler(
       .leftJoin(site, eq(admin_site_trans.site_id, site.site_id))
       .where(eq(admin_site_trans.admin_id, admin_id_jwt));
 
-      
     const all_sites: any[] = [...data_admin_site, ...data_admin_site_trans];
-      
+
     const unique_sites = all_sites.filter(
       (item, index, self) =>
         index === self.findIndex((t) => t.site.site_id === item.site.site_id),
@@ -55,13 +62,13 @@ export const getSiteDetails = asyncHandler(
           .select()
           .from(department)
           .where(eq(department.site_id, siteItem.site_id));
-        
+
         return {
           ...siteItem,
           employee_count: employees.length,
           department_count: departments.length,
         };
-      })
+      }),
     );
 
     res.status(200).send({
@@ -106,15 +113,15 @@ export const createSite = asyncHandler(
       name,
       contact,
       notes: "",
-      auto_remove_emp,
+      auto_remove_emp: toEnum(auto_remove_emp),
       site_password,
-      agrigistics_site,
-      pull_employees,
-      send_attendance,
-      easyroster,
+      agrigistics_site: toEnum(agrigistics_site),
+      pull_employees: toEnum(pull_employees),
+      send_attendance: toEnum(send_attendance),
+      easyroster: toEnum(easyroster),
       easyroster_token,
-      eduman,
-      send_agrigistics_gps,
+      eduman: toEnum(eduman),
+      send_agrigistics_gps: toEnum(send_agrigistics_gps),
     };
     const [result] = await db.insert(site).values(new_site);
 
@@ -125,7 +132,7 @@ export const createSite = asyncHandler(
       data_format_other,
       // license_key,
       server_ip,
-      access_user,
+      access_user: toEnum(access_user),
     };
 
     await db.insert(site_trans).values(new_site_trans);
@@ -155,24 +162,39 @@ export const getSingleSite = asyncHandler(
       .where(eq(site_trans.site_id, id));
 
     if (!site_data) {
-      return res.status(404).send({ success: false, message: "Site not found" });
+      return res
+        .status(404)
+        .send({ success: false, message: "Site not found" });
     }
 
-    const latestTrans =
+    const latest_trans =
       trans_data.length > 0 ? trans_data[trans_data.length - 1] : null;
+
+    const formattedData = {
+      ...site_data,
+      ...latest_trans,
+      auto_remove_emp: fromEnum(site_data.auto_remove_emp),
+      agrigistics_site: fromEnum(site_data.agrigistics_site),
+      pull_employees: fromEnum(site_data.pull_employees),
+      send_attendance: fromEnum(site_data.send_attendance),
+      easyroster: fromEnum(site_data.easyroster),
+      eduman: fromEnum(site_data.eduman),
+      send_agrigistics_gps: fromEnum(site_data.send_agrigistics_gps),
+      access_user: fromEnum(latest_trans?.access_user),
+    };
 
     res.send({
       success: true,
-      data: {
-        ...site_data,
-        ...latestTrans,
-      },
+      data: formattedData,
     });
   },
 );
 
 export const updateSite = asyncHandler(
-  async (req: FastifyRequest<{ Params: { id: number }; Body: ISiteCreate }>, res: FastifyReply) => {
+  async (
+    req: FastifyRequest<{ Params: { id: number }; Body: ISiteCreate }>,
+    res: FastifyReply,
+  ) => {
     const { id } = req.params;
     const {
       site_code,
@@ -197,19 +219,22 @@ export const updateSite = asyncHandler(
     } = req.body;
 
     await db.transaction(async (tx) => {
-      await tx.update(site)
+      await tx
+        .update(site)
         .set({
+          site_code: site_code || "",
           name,
           contact,
-          auto_remove_emp,
+          notes: "",
+          auto_remove_emp: toEnum(auto_remove_emp),
           site_password,
-          agrigistics_site,
-          pull_employees,
-          send_attendance,
-          easyroster,
+          agrigistics_site: toEnum(agrigistics_site),
+          pull_employees: toEnum(pull_employees),
+          send_attendance: toEnum(send_attendance),
+          easyroster: toEnum(easyroster),
           easyroster_token,
-          eduman,
-          send_agrigistics_gps,
+          eduman: toEnum(eduman),
+          send_agrigistics_gps: toEnum(send_agrigistics_gps),
         })
         .where(eq(site.site_id, id));
 
@@ -221,17 +246,19 @@ export const updateSite = asyncHandler(
         data_format_other,
         // license_key: license_key,
         server_ip,
-        access_user,
+        access_user: toEnum(access_user),
       });
     });
 
     res.status(200).send({ success: true, message: "Updated successfully" });
-  }
+  },
 );
 
-
 export const deleteSite = asyncHandler(
-  async (req: FastifyRequest<{ Params: { id: number } }>, res: FastifyReply) => {
+  async (
+    req: FastifyRequest<{ Params: { id: number } }>,
+    res: FastifyReply,
+  ) => {
     const { id } = req.params;
 
     await db.transaction(async (tx) => {
@@ -240,5 +267,5 @@ export const deleteSite = asyncHandler(
     });
 
     res.send({ success: true, message: "Site deleted" });
-  }
+  },
 );

@@ -10,7 +10,6 @@ import {
 } from "../controllers/admin.controller";
 import {
   create_admin_schema,
-  login_schema,
 } from "../validations/admin.validation";
 import authenticateToken from "../middleware/adminMiddleware";
 import { ICreateAdminBody } from "../types/admin.type";
