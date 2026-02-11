@@ -11,14 +11,18 @@ import loginRoutes from "./routes/login.routes"
 const app: FastifyInstance = Fastify({ logger: true, trustProxy: true, });
 
 // CORS handling (simple, whitelist-based)
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+   process.env.FRONTEND_URL!,
+];
+
+console.log('CORS check for allowedOrigins:', allowedOrigins)
+
 app.register(cors, {
   origin: (origin, cb) => {
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'https://yourdomain.com',
-       process.env.FRONTEND_URL!,
-    ]
+
+    console.log('CORS check for origin:', origin)
 
     if (!origin || allowedOrigins.includes(origin)) {
       cb(null, true)
