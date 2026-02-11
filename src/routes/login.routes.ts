@@ -4,7 +4,6 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 import { adminProfile, login } from '../controllers/login.controller'
 import authenticateToken from '../middleware/adminMiddleware';
 import { login_schema } from '../validations/admin.validation';
-import { requireAdminSession } from '../middleware/auth.session';
 
 export default async function adminRoutes(fastify: FastifyInstance) {
   
@@ -18,7 +17,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 
   fastify.get(
     '/profile',
-    { preHandler: [requireAdminSession] },
+    { preHandler: [authenticateToken] },
     adminProfile
   );
 

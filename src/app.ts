@@ -3,7 +3,6 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { handleError } from "./utils/ErrorHandler";
 import cors from '@fastify/cors';
 import cookie from '@fastify/cookie';
-import session from '@fastify/session';
 
 import adminRoutes from "./routes/admin.routes"
 import siteRoutes from "./routes/site.routes"
@@ -34,18 +33,6 @@ app.register(cors, {
 
 // Cookie handling
 app.register(cookie);
-
-// Session management
-app.register(session, {
-  secret: process.env.SESSION_SECRET!,
-  cookie: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    path: '/',
-  },
-})
-
 
 
 // Keep a small health route
