@@ -55,7 +55,7 @@ export const login = asyncHandler(
     );
 
     res
-      .setCookie("access_token", access_token, {
+      .cookie("access_token", access_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production", // true in prod
         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
@@ -66,6 +66,10 @@ export const login = asyncHandler(
       .send({
         success: true,
         message: "login successfull",
+        data: {
+          access_token,
+          refresh_token,
+        },
       });
   },
 );

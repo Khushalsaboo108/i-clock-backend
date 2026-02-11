@@ -12,13 +12,12 @@ import authenticateToken from "../middleware/adminMiddleware";
 import { IPagination } from "../types/common.type";
 import { ISiteCreate } from "../types/site.type";
 import { create_site } from "../validations/site.validation";
-import { requireAdminSession } from "../middleware/auth.session";
 
 export default async function adminRoutes(fastify: FastifyInstance) {
   
   fastify.get(
     "/",
-    { preHandler: [requireAdminSession] },
+    { preHandler: [authenticateToken] },
     async (request, reply) => {
       await getSiteDetails(
         request as FastifyRequest<{ Querystring: IPagination }>,
@@ -29,7 +28,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 
   fastify.get(
     "/:id",
-    { preHandler: [requireAdminSession] },
+    { preHandler: [authenticateToken] },
     async (request, reply) => {
       await getSingleSite(
         request as FastifyRequest<{ Params: { id: number } }>,
@@ -41,7 +40,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   fastify.post(
     "/",
     {
-      preHandler: [requireAdminSession],
+      preHandler: [authenticateToken],
       schema: create_site,
     },
     async (request, reply) => {
@@ -54,7 +53,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 
   fastify.patch(
     "/:id",
-    { preHandler: [requireAdminSession], schema: create_site },
+    { preHandler: [authenticateToken], schema: create_site },
     async (request, reply) => {
       await updateSite(
         request as FastifyRequest<{
@@ -68,7 +67,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 
   fastify.delete(
     "/:id",
-    { preHandler: [requireAdminSession] },
+    { preHandler: [authenticateToken] },
     async (request, reply) => {
       await deleteSite(
         request as FastifyRequest<{ Params: { id: number } }>,

@@ -15,13 +15,12 @@ import {
 import authenticateToken from "../middleware/adminMiddleware";
 import { ICreateAdminBody } from "../types/admin.type";
 import { IPagination } from "../types/common.type";
-import { requireAdminSession } from "../middleware/auth.session";
 
 export default async function adminRoutes(fastify: FastifyInstance) {
 
   fastify.get(
     "/",
-    { preHandler: [requireAdminSession] },
+    { preHandler: [authenticateToken] },
     async (request, reply) => {
       await getAdmin(
         request as FastifyRequest<{ Querystring: IPagination }>,
@@ -32,7 +31,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 
   fastify.get(
     "/:id",
-    { preHandler: [requireAdminSession] },
+    { preHandler: [authenticateToken] },
     async (request, reply) => {
       await getAdminById(
         request as FastifyRequest<{ Params: { id: number } }>,
@@ -44,7 +43,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   fastify.post(
     "/",
     {
-      preHandler: [requireAdminSession],
+      preHandler: [authenticateToken],
       schema: create_admin_schema,
     },
     async (request, reply) => {
@@ -58,7 +57,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   fastify.patch(
     "/:id",
     {
-      preHandler: [requireAdminSession],
+      preHandler: [authenticateToken],
       schema: create_admin_schema,
     },
     async (request, reply) => {
@@ -74,7 +73,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 
   fastify.delete(
     "/:id",
-    { preHandler: [requireAdminSession] },
+    { preHandler: [authenticateToken] },
     async (request, reply) => {
       await deleteAdmin(
         request as FastifyRequest<{ Params: { id: number } }>,

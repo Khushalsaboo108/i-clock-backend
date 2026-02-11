@@ -22,8 +22,6 @@ console.log('CORS check for allowedOrigins:', allowedOrigins)
 app.register(cors, {
   origin: (origin, cb) => {
 
-    console.log('CORS check for origin:', origin)
-
     if (!origin || allowedOrigins.includes(origin)) {
       cb(null, true)
     } else {
