@@ -60,7 +60,7 @@ export const login = asyncHandler(
         secure: process.env.NODE_ENV === "production" ? true : false,
         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         path: "/",
-        domain: ".mentem.in",
+        domain: ".vercel.app",
         maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
       })
       .status(200)
